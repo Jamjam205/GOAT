@@ -1,4 +1,4 @@
-<h1 align="center">Hi 👋, I'm Shyde</h1>
+<h1 align="center">Hi 👋, I'm GOAT</h1>
 <h3 align="center">A dedicated programmer with a penchant for programming from Poland</h3>
 
 - 🌱 I’m currently learning **HTML and CSS**
