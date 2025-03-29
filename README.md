@@ -65,6 +65,8 @@
 <h3 align="left">Current Jobs:</h3>
 
 <ul>
-  <li>Developer of new Wave & Codex project "RO-HUB"</li>
-  <li>Luraph Obfuscator support</li>
+  <li>
+    just 
+    making lua currently"</li>
+  <li>Ltrading Stocks my main income</li>
 </ul>
