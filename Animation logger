@@ -138,30 +138,30 @@ CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Excluded Animation IDs
+
 local excludedAnimations = {}
 
--- Function to check if animation should be excluded
+
 local function isExcluded(animId)
     return excludedAnimations[animId] ~= nil
 end
 
--- Function to exclude an animation
+
 local function excludeAnimation(animId)
     excludedAnimations[animId] = true
 end
 
--- Clear All button functionality
+
 ClearAllButton.MouseButton1Click:Connect(function()
     for _, child in pairs(LogFrame:GetChildren()) do
         if child:IsA("Frame") then
-            child:Destroy() -- Remove all logged animations
+            child:Destroy() 
         end
     end
-    LogFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Reset the canvas size after clearing
+    LogFrame.CanvasSize = UDim2.new(0, 0, 0, 0) 
 end)
 
--- Log Animation function with exclusion logic
+
 local function logAnimation(animId)
     if isExcluded(animId) then
         return
