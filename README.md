@@ -1,11 +1,9 @@
 <h1 align="center">Hi 👋, I'm GOAT</h1>
-<h3 align="center">A dedicated programmer with a penchant for programming from Poland</h3>
+<h3 align="center">A dedicated programmer with a penchant for programming from Jamaica</h3>
 
-- 🌱 I’m currently learning **HTML and CSS**
+- 🌱 I’m currently learning **RUbby and C++**
 
-- 👨‍💻 All of my projects are available at [GitHub](https://github.com/ShydeDev)
-
-- 📫 How to reach me **@notshyde on Discord**
+- 📫 How to reach me **@1goat1_1 on Discord**
 
 <h3 align="left">Languages and Tools:</h3>
 
@@ -57,8 +55,8 @@
 <h3 align="left">Previous Experiences:</h3>
 
 <ul>
-  <li>Former Developer of Vision/Rune Executor</li>
-  <li>Former Developer of W-Azure ScriptHub Roblox</li>
+  <li>owner Developer of Goat Hub</li>
+  <li>Developer of syntra ScriptHub Roblox</li>
   <li>Former Developer of Yerex Predictor</li>
 </ul>
 
