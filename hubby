@@ -5397,9 +5397,10 @@ function Compkiller.new(Config : Window)
 		SearchContainer.Parent = MainFrame
 		SearchContainer.BackgroundTransparency = 1
 		SearchContainer.ZIndex = 50
-		-- Leave space for the left sidebar (85 + margins)
-		SearchContainer.Position = UDim2.new(0, 120, 0, 8)
-		SearchContainer.Size = UDim2.new(1, -140, 0, 32)
+		-- Centered at top
+		SearchContainer.AnchorPoint = Vector2.new(0.5, 0)
+		SearchContainer.Position = UDim2.new(0.5, 0, 0, 8)
+		SearchContainer.Size = UDim2.new(0, 420, 0, 32)
 
 		local SearchBox = Instance.new("TextBox")
 		local SB_Corner = Instance.new("UICorner")
@@ -5419,7 +5420,7 @@ function Compkiller.new(Config : Window)
 		SearchBox.Text = ""
 		SearchBox.TextColor3 = Compkiller.Colors.SwitchColor
 		SearchBox.TextSize = 14
-		SearchBox.TextXAlignment = Enum.TextXAlignment.Center
+		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
 		SearchBox.ClearTextOnFocus = false
 		SearchBox.CursorPosition = -1
 		SearchBox.TextTruncate = Enum.TextTruncate.AtEnd
@@ -5440,7 +5441,7 @@ function Compkiller.new(Config : Window)
 		Icon.Parent = SearchBox
 		Icon.BackgroundTransparency = 1
 		Icon.Size = UDim2.new(0, 18, 0, 18)
-		Icon.Position = UDim2.new(0, 8, 0.5, -9)
+		Icon.Position = UDim2.new(0, 10, 0.5, -9)
 		Icon.ZIndex = 52
 		Icon.Image = Compkiller.Assets and Compkiller.Assets["lucide-search"] or "rbxassetid://10734943674"
 		Icon.ImageColor3 = Compkiller.Colors.SwitchColor
@@ -5450,7 +5451,7 @@ function Compkiller.new(Config : Window)
 		-- Padding for text so it doesn't overlap icon
 		local UIPadding = Instance.new("UIPadding")
 		UIPadding.Parent = SearchBox
-		UIPadding.PaddingLeft = UDim.new(0, 30)
+		UIPadding.PaddingLeft = UDim.new(0, 36)
 		UIPadding.PaddingRight = UDim.new(0, 6)
 
 		-- Bottom divider to match skeuomorphic look
