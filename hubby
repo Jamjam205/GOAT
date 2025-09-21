@@ -5530,6 +5530,70 @@ function Compkiller.new(Config : Window)
 		Property = 'TextColor3'
 	});
 
+	-- Populate avatar and live info (username • FPS, and Expiry | Uptime)
+	do
+		-- Username
+		local username = WindowArgs.Username or (LocalPlayer and LocalPlayer.Name) or "Player"
+		UserText.Text = username
+
+		-- Avatar thumbnail
+		task.spawn(function()
+			local ok, thumb = pcall(function()
+				return game:GetService("Players"):GetUserThumbnailAsync(
+					(LocalPlayer and LocalPlayer.UserId) or 0,
+					Enum.ThumbnailType.HeadShot,
+					Enum.ThumbnailSize.Size150x150
+				)
+			end)
+			if ok and thumb and typeof(thumb) == "string" and #thumb > 0 then
+				UserProfile.Image = thumb
+			end
+		end)
+
+		-- Helpers
+		local function fmtSeconds(s)
+			s = math.max(0, math.floor(s))
+			local h = math.floor(s/3600)
+			local m = math.floor((s%3600)/60)
+			local sec = s%60
+			if h > 0 then
+				return string.format("%02d:%02d:%02d", h, m, sec)
+			else
+				return string.format("%02d:%02d", m, sec)
+			end
+		end
+
+		-- Timers and FPS smoothing
+		local startClock = os.clock()
+		local expiryTs = rawget(_G, "GOATHUB_ExpiryTimestamp") -- unix seconds or nil
+		local fps = 60
+		local alpha = 0.1
+
+		game:GetService("RunService").Heartbeat:Connect(function(dt)
+			-- FPS
+			local inst = 1 / math.max(dt, 1e-6)
+			fps = fps + (inst - fps) * alpha
+			local fpsInt = math.clamp(math.floor(fps + 0.5), 0, 9999)
+			UserText.Text = string.format("%s  •  %d fps", username, fpsInt)
+
+			-- Uptime + Expiry
+			local up = os.clock() - startClock
+			local uptimeStr = fmtSeconds(up)
+			local expiryStr
+			if typeof(expiryTs) == "number" then
+				local remain = expiryTs - os.time()
+				if remain <= 0 then
+					expiryStr = "EXPIRED"
+				else
+					expiryStr = fmtSeconds(remain)
+				end
+				ExpireText.Text = string.format("Expiry: %s  |  Up: %s", expiryStr, uptimeStr)
+			else
+				ExpireText.Text = string.format("Expiry: Lifetime  |  Up: %s", uptimeStr)
+			end
+		end)
+	end
+
 	TabMainFrame.Name = Compkiller:_RandomString()
 	TabMainFrame.Parent = MainFrame
 	TabMainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
