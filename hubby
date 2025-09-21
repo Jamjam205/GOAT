@@ -5477,6 +5477,7 @@ function Compkiller.new(Config : Window)
 	Userinfo.BorderSizePixel = 0
 	Userinfo.Position = UDim2.new(0, 0, 1, 0)
 	Userinfo.Size = UDim2.new(1, -25, 0, 60)
+    Userinfo.ClipsDescendants = true
 
 	UserProfile.Name = Compkiller:_RandomString()
 	UserProfile.Parent = Userinfo
@@ -5504,6 +5505,8 @@ function Compkiller.new(Config : Window)
 	UserText.TextColor3 = Compkiller.Colors.SwitchColor
 	UserText.TextSize = 13.000
 	UserText.TextXAlignment = Enum.TextXAlignment.Left
+    UserText.TextWrapped = false
+    UserText.TextTruncate = Enum.TextTruncate.AtEnd
 
 	table.insert(Compkiller.Elements.SwitchColor , {
 		Element = UserText,
@@ -5524,6 +5527,8 @@ function Compkiller.new(Config : Window)
 	ExpireText.TextSize = 13.000
 	ExpireText.TextTransparency = 0.500
 	ExpireText.TextXAlignment = Enum.TextXAlignment.Left
+    ExpireText.TextWrapped = false
+    ExpireText.TextTruncate = Enum.TextTruncate.AtEnd
 
 	table.insert(Compkiller.Elements.SwitchColor , {
 		Element = ExpireText,
@@ -5574,9 +5579,11 @@ function Compkiller.new(Config : Window)
 			local inst = 1 / math.max(dt, 1e-6)
 			fps = fps + (inst - fps) * alpha
 			local fpsInt = math.clamp(math.floor(fps + 0.5), 0, 9999)
-			UserText.Text = string.format("%s  •  %d fps", username, fpsInt)
 
-			-- Uptime + Expiry
+			-- Keep username static to avoid layout shifts
+			UserText.Text = username
+
+			-- Uptime + Expiry (with Premium fallback)
 			local up = os.clock() - startClock
 			local uptimeStr = fmtSeconds(up)
 			local expiryStr
@@ -5587,9 +5594,9 @@ function Compkiller.new(Config : Window)
 				else
 					expiryStr = fmtSeconds(remain)
 				end
-				ExpireText.Text = string.format("Expiry: %s  |  Up: %s", expiryStr, uptimeStr)
+				ExpireText.Text = string.format("Expiry: %s  |  %d fps  |  Up: %s", expiryStr, fpsInt, uptimeStr)
 			else
-				ExpireText.Text = string.format("Expiry: Lifetime  |  Up: %s", uptimeStr)
+				ExpireText.Text = string.format("Expiry: Premium  |  %d fps  |  Up: %s", fpsInt, uptimeStr)
 			end
 		end)
 	end
