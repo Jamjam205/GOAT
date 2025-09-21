@@ -5537,9 +5537,9 @@ function Compkiller.new(Config : Window)
 
 	-- Populate avatar and live info (username • FPS, and Expiry | Uptime)
 	do
-		-- Username
-		local username = WindowArgs.Username or (LocalPlayer and LocalPlayer.Name) or "Player"
-		UserText.Text = username
+		-- First line shows Uptime (initialize)
+        local username = WindowArgs.Username or (LocalPlayer and LocalPlayer.Name) or "Player" -- kept for potential future use
+        UserText.Text = "Uptime: 00:00"
 
 		-- Avatar thumbnail
 		task.spawn(function()
@@ -5569,7 +5569,7 @@ function Compkiller.new(Config : Window)
 		end
 
 		-- Timers and FPS smoothing
-		local startClock = os.clock()
+        local startClock = os.clock()
 		local fps = 60
 		local alpha = 0.1
 
@@ -5579,15 +5579,15 @@ function Compkiller.new(Config : Window)
 			fps = fps + (inst - fps) * alpha
 			local fpsInt = math.clamp(math.floor(fps + 0.5), 0, 9999)
 
-			-- Keep username static to avoid layout shifts
-			UserText.Text = username
+            -- First line: Uptime
+            local up = os.clock() - startClock
+            local uptimeStr = fmtSeconds(up)
+            UserText.Text = "Uptime: " .. uptimeStr
 
-			-- Uptime (second line shows FPS + Uptime only)
-			local up = os.clock() - startClock
-			local uptimeStr = fmtSeconds(up)
-			ExpireText.Text = string.format("FPS: %d  |  Uptime: %s", fpsInt, uptimeStr)
-		end)
-	end
+            -- Second line: FPS only
+            ExpireText.Text = string.format("FPS: %d", fpsInt)
+        end)
+    end
 
 	TabMainFrame.Name = Compkiller:_RandomString()
 	TabMainFrame.Parent = MainFrame
