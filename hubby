@@ -5509,30 +5509,16 @@ function Compkiller.new(Config : Window)
 	local PingBubble = Instance.new("Frame")
 	PingBubble.Name = Compkiller:_RandomString()
 	PingBubble.Parent = Userinfo
-	PingBubble.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+	PingBubble.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 	PingBubble.BackgroundTransparency = 0.1
 	PingBubble.BorderSizePixel = 0
-	PingBubble.Position = UDim2.new(0, 40, 0, -2)
-	PingBubble.Size = UDim2.new(0, 90, 0, 22)
+	PingBubble.Position = UDim2.new(0, 42, 0, 0)
+	PingBubble.Size = UDim2.new(0, 80, 0, 22)
 	PingBubble.Visible = false
 	PingBubble.ZIndex = 7
 	local PingBubbleCorner = Instance.new("UICorner")
 	PingBubbleCorner.CornerRadius = UDim.new(0, 6)
 	PingBubbleCorner.Parent = PingBubble
-	-- Bubble tail
-	local PingTail = Instance.new("Frame")
-	PingTail.Name = Compkiller:_RandomString()
-	PingTail.Parent = PingBubble
-	PingTail.AnchorPoint = Vector2.new(0, 1)
-	PingTail.BackgroundColor3 = PingBubble.BackgroundColor3
-	PingTail.BorderSizePixel = 0
-	PingTail.Position = UDim2.new(0, 12, 1, 0)
-	PingTail.Size = UDim2.new(0, 8, 0, 8)
-	PingTail.ZIndex = PingBubble.ZIndex
-	local TailCorner = Instance.new("UICorner")
-	TailCorner.CornerRadius = UDim.new(0, 2)
-	TailCorner.Parent = PingTail
-	PingTail.Rotation = 45
 	local PingLabel = Instance.new("TextLabel")
 	PingLabel.Parent = PingBubble
 	PingLabel.BackgroundTransparency = 1
@@ -5541,56 +5527,23 @@ function Compkiller.new(Config : Window)
 	PingLabel.Font = Enum.Font.GothamMedium
 	PingLabel.TextSize = 12
 	PingLabel.TextXAlignment = Enum.TextXAlignment.Left
-	PingLabel.TextColor3 = Color3.fromRGB(254, 254, 255)
-	PingLabel.Text = "Ping: 0 ms"
+	PingLabel.TextColor3 = Color3.fromRGB(230, 230, 235)
+	PingLabel.Text = "0 ms"
 
 	-- Click handler: show ping bubble briefly
 	do
 		local TweenService = game:GetService("TweenService")
-		local RunService = game:GetService("RunService")
 		local Stats = game:GetService("Stats")
-
-		local function getPingMs()
-			local ms = 0
+		WifiButton.MouseButton1Click:Connect(function()
+			-- Get ping safely
+			local ping = 0
 			pcall(function()
 				local item = Stats.Network and Stats.Network.ServerStatsItem and Stats.Network.ServerStatsItem["Data Ping"]
 				if item and item.GetValue then
-					ms = math.floor((item:GetValue() or 0) + 0.5)
+					ping = math.floor((item:GetValue() or 0) + 0.5)
 				end
 			end)
-			return ms
-		end
-
-		local function colorForPing(ms)
-			if ms <= 60 then
-				return Color3.fromRGB(90, 200, 120) -- green
-			elseif ms <= 120 then
-				return Color3.fromRGB(240, 200, 80) -- yellow
-			else
-				return Color3.fromRGB(240, 90, 90) -- red
-			end
-		end
-
-		-- Periodically update icon color
-		local accum = 0
-		RunService.Heartbeat:Connect(function(dt)
-			accum += dt
-			if accum >= 0.5 then
-				accum = 0
-				local ms = getPingMs()
-				WifiButton.ImageColor3 = colorForPing(ms)
-			end
-		end)
-
-		WifiButton.MouseButton1Click:Connect(function()
-			-- Get ping and update bubble
-			local ping = getPingMs()
-			PingLabel.Text = string.format("Ping: %d ms", ping)
-			WifiButton.ImageColor3 = colorForPing(ping)
-
-			-- Dynamic bubble width based on text
-			local width = math.clamp(PingLabel.TextBounds.X + 16, 70, 140)
-			PingBubble.Size = UDim2.new(0, width, 0, 22)
+			PingLabel.Text = tostring(ping) .. " ms"
 
 			-- Show bubble
 			PingBubble.Visible = true
@@ -5598,9 +5551,10 @@ function Compkiller.new(Config : Window)
 			PingLabel.TextTransparency = 0
 
 			-- Auto fade and hide
+			TweenService:Create(PingBubble, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.1}):Play()
 			task.delay(1.2, function()
-				local t1 = TweenService:Create(PingBubble, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
-				local t2 = TweenService:Create(PingLabel, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1})
+				local t1 = TweenService:Create(PingBubble, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
+				local t2 = TweenService:Create(PingLabel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1})
 				t1:Play(); t2:Play()
 				t1.Completed:Wait()
 				PingBubble.Visible = false
