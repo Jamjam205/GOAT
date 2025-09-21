@@ -5689,7 +5689,7 @@ function Compkiller.new(Config : Window)
             -- Second line: FPS only
             ExpireText.Text = string.format("FPS: %d", fpsInt)
           end)
-      end)
+      end
 
 	TabMainFrame.Name = Compkiller:_RandomString()
 	TabMainFrame.Parent = MainFrame
