@@ -1,4 +1,3 @@
-
 --[[
     		Compkiller Interface
 
@@ -3022,8 +3021,6 @@ function Compkiller:_LoadOption(Value , TabSignal)
 		end);
 
 		local Args = {};
-		-- Child visibility signal tied to this toggle's state
-		local ChildSignal = Compkiller.__SIGNAL(Config.Default);
 
 		Args.Flag = Config.Flag;
 
@@ -3043,8 +3040,6 @@ function Compkiller:_LoadOption(Value , TabSignal)
 			Compkiller.Flags[Config.Flag] = Args;
 		end;
 
-		-- Fire initial state to ensure children sync if any were created before toggling
-		ChildSignal:Fire(Config.Default);
 		return Args;
 	end;
 
@@ -3744,8 +3739,6 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 
 			Block:SetTransparency((Config.Default and 0.1) or 0.3);
 
-			-- Propagate to children and user callback
-			ChildSignal:Fire(Config.Default);
 			Config.Callback(Config.Default);
 		end;
 
@@ -3755,11 +3748,6 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 		end);
 
 		Args.Link = Compkiller:_LoadOption(Block);
-
-		-- Provide a builder for child elements that are controlled by the toggle
-		function Args:Children()
-			return Compkiller:_LoadElement(Parent, EnabledLine, ChildSignal)
-		end
 
 		function Args:GetValue()
 			return Config.Default;
@@ -4033,18 +4021,6 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 				})
 			end;
 		end);
-
-		-- Apply initial state so brand-new sliders don't flash when parent toggle is OFF
-		if not Signal:GetValue() then
-			SliderInput.Size = UDim2.new(0, 0, 1, 0)
-			ValueText.TextTransparency = 1
-			Frame.BackgroundTransparency = 1
-			SliderInput.BackgroundTransparency = 1
-			UIStroke.Transparency = 1
-			SliderBar.BackgroundTransparency = 1
-			BlockLine.BackgroundTransparency = 1
-			BlockText.TextTransparency = 1
-		end
 
 		Compkiller:_Input(Frame,function()
 			Config.Callback();
