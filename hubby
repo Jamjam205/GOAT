@@ -5498,7 +5498,7 @@ function Compkiller.new(Config : Window)
 	UserText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	UserText.BorderSizePixel = 0
 	UserText.Position = UDim2.new(0, 55, 0, 8)
-	UserText.Size = UDim2.new(0, 200, 0, 20)
+	UserText.Size = UDim2.new(1, -70, 0, 20)
 	UserText.ZIndex = 2
 	UserText.Font = Enum.Font.GothamMedium
 	UserText.Text = "Username"
@@ -5519,7 +5519,7 @@ function Compkiller.new(Config : Window)
 	ExpireText.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	ExpireText.BorderSizePixel = 0
 	ExpireText.Position = UDim2.new(0, 55, 0, 25)
-	ExpireText.Size = UDim2.new(0, 200, 0, 20)
+	ExpireText.Size = UDim2.new(1, -70, 0, 20)
 	ExpireText.ZIndex = 2
 	ExpireText.Font = Enum.Font.GothamMedium
 	ExpireText.Text = "0/0/0"
