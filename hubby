@@ -5564,6 +5564,36 @@ function Compkiller.new(Config : Window)
 		end)
 	end
 
+	-- Small green pill next to the Wi-Fi icon (Anti-Afk badge)
+	do
+		local AntiAfk = Instance.new("Frame")
+		AntiAfk.Name = Compkiller:_RandomString()
+		AntiAfk.Parent = Userinfo
+		AntiAfk.BackgroundColor3 = Color3.fromRGB(52, 112, 85) -- green tone
+		AntiAfk.BackgroundTransparency = 0.15
+		AntiAfk.BorderSizePixel = 0
+		-- place to the right of the Wi-Fi icon, a little above the avatar
+		AntiAfk.Position = UDim2.new(0, 62, 0, -1)
+		AntiAfk.Size = UDim2.new(0, 70, 0, 18)
+		AntiAfk.ZIndex = 6
+
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = AntiAfk
+
+		local label = Instance.new("TextLabel")
+		label.Parent = AntiAfk
+		label.BackgroundTransparency = 1
+		label.Size = UDim2.new(1, -8, 1, 0)
+		label.Position = UDim2.new(0, 4, 0, 0)
+		label.Font = Enum.Font.GothamBold
+		label.TextSize = 12
+		label.TextColor3 = Color3.fromRGB(235, 245, 240)
+		label.TextXAlignment = Enum.TextXAlignment.Center
+		label.Text = "Anti-Afk"
+		label.ZIndex = 7
+	end
+
 	UserText.Name = Compkiller:_RandomString()
 	UserText.Parent = Userinfo
 	UserText.BackgroundTransparency = 1.000
@@ -5658,8 +5688,8 @@ function Compkiller.new(Config : Window)
 
             -- Second line: FPS only
             ExpireText.Text = string.format("FPS: %d", fpsInt)
-        end)
-    end
+          end)
+      end)
 
 	TabMainFrame.Name = Compkiller:_RandomString()
 	TabMainFrame.Parent = MainFrame
