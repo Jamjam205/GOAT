@@ -5522,7 +5522,7 @@ function Compkiller.new(Config : Window)
 	ExpireText.Size = UDim2.new(1, -70, 0, 20)
 	ExpireText.ZIndex = 2
 	ExpireText.Font = Enum.Font.GothamMedium
-	ExpireText.Text = "0/0/0"
+	ExpireText.Text = "FPS: 0  |  Uptime: 00:00"
 	ExpireText.TextColor3 = Compkiller.Colors.SwitchColor
 	ExpireText.TextSize = 13.000
 	ExpireText.TextTransparency = 0.500
@@ -5570,7 +5570,6 @@ function Compkiller.new(Config : Window)
 
 		-- Timers and FPS smoothing
 		local startClock = os.clock()
-		local expiryTs = rawget(_G, "GOATHUB_ExpiryTimestamp") -- unix seconds or nil
 		local fps = 60
 		local alpha = 0.1
 
@@ -5583,21 +5582,10 @@ function Compkiller.new(Config : Window)
 			-- Keep username static to avoid layout shifts
 			UserText.Text = username
 
-			-- Uptime + Expiry (with Premium fallback)
+			-- Uptime (second line shows FPS + Uptime only)
 			local up = os.clock() - startClock
 			local uptimeStr = fmtSeconds(up)
-			local expiryStr
-			if typeof(expiryTs) == "number" then
-				local remain = expiryTs - os.time()
-				if remain <= 0 then
-					expiryStr = "EXPIRED"
-				else
-					expiryStr = fmtSeconds(remain)
-				end
-				ExpireText.Text = string.format("Expiry: %s  |  %d fps  |  Up: %s", expiryStr, fpsInt, uptimeStr)
-			else
-				ExpireText.Text = string.format("Expiry: Premium  |  %d fps  |  Up: %s", fpsInt, uptimeStr)
-			end
+			ExpireText.Text = string.format("FPS: %d  |  Uptime: %s", fpsInt, uptimeStr)
 		end)
 	end
 
