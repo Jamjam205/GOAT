@@ -5387,6 +5387,148 @@ function Compkiller.new(Config : Window)
 
 	local TabFrameBaseTrans = 0.25;
 
+	-- Search bar (top of content area)
+	do
+		-- Expose an event for listeners
+		WindowArgs.SearchChanged = WindowArgs.SearchChanged or Instance.new("BindableEvent")
+
+		local SearchContainer = Instance.new("Frame")
+		SearchContainer.Name = Compkiller:_RandomString()
+		SearchContainer.Parent = MainFrame
+		SearchContainer.BackgroundTransparency = 1
+		SearchContainer.ZIndex = 50
+		-- Leave space for the left sidebar (85 + margins)
+		SearchContainer.Position = UDim2.new(0, 120, 0, 8)
+		SearchContainer.Size = UDim2.new(1, -140, 0, 32)
+
+		local SearchBox = Instance.new("TextBox")
+		local SB_Corner = Instance.new("UICorner")
+		local SB_Stroke = Instance.new("UIStroke")
+		local Icon = Instance.new("TextLabel")
+
+		SearchBox.Parent = SearchContainer
+		SearchBox.BackgroundColor3 = Compkiller.Colors.BlockBackground
+		SearchBox.BackgroundTransparency = 0.05
+		SearchBox.BorderSizePixel = 0
+		SearchBox.Size = UDim2.new(1, 0, 1, 0)
+		SearchBox.ZIndex = 51
+		SearchBox.Font = Enum.Font.Gotham
+		SearchBox.PlaceholderText = "Search"
+		SearchBox.PlaceholderColor3 = Color3.fromRGB(170, 170, 175)
+		SearchBox.Text = ""
+		SearchBox.TextColor3 = Compkiller.Colors.SwitchColor
+		SearchBox.TextSize = 14
+		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+		SearchBox.ClearTextOnFocus = false
+		SearchBox.CursorPosition = -1
+		SearchBox.TextTruncate = Enum.TextTruncate.AtEnd
+		SearchBox.TextWrapped = false
+
+		SB_Corner.CornerRadius = UDim.new(0, 6)
+		SB_Corner.Parent = SearchBox
+
+		SB_Stroke.Color = Compkiller.Colors.HighStrokeColor
+		SB_Stroke.Transparency = 0.25
+		SB_Stroke.Parent = SearchBox
+
+		table.insert(Compkiller.Elements.BlockBackground,{ Element = SearchBox, Property = "BackgroundColor3" })
+		table.insert(Compkiller.Elements.SwitchColor,{ Element = SearchBox, Property = "TextColor3" })
+		table.insert(Compkiller.Elements.HighStrokeColor,{ Element = SB_Stroke, Property = "Color" })
+
+		-- Left magnifier icon (using text glyph to avoid asset dependency)
+		Icon.Parent = SearchBox
+		Icon.BackgroundTransparency = 1
+		Icon.Size = UDim2.new(0, 20, 1, 0)
+		Icon.Position = UDim2.new(0, 8, 0, 0)
+		Icon.ZIndex = 52
+		Icon.Font = Enum.Font.Gotham
+		Icon.Text = "🔍"
+		Icon.TextSize = 14
+		Icon.TextColor3 = Compkiller.Colors.SwitchColor
+
+		table.insert(Compkiller.Elements.SwitchColor,{ Element = Icon, Property = "TextColor3" })
+
+		-- Padding for text so it doesn't overlap icon
+		local UIPadding = Instance.new("UIPadding")
+		UIPadding.Parent = SearchBox
+		UIPadding.PaddingLeft = UDim.new(0, 30)
+		UIPadding.PaddingRight = UDim.new(0, 6)
+
+		-- Fire search change
+		local function fireChange()
+			pcall(function()
+				WindowArgs.SearchChanged:Fire(SearchBox.Text)
+			end)
+		end
+		SearchBox:GetPropertyChangedSignal("Text"):Connect(fireChange)
+		SearchBox.FocusLost:Connect(function()
+			fireChange()
+		end)
+	end
+
+	-- Resize grip (bottom-right)
+	do
+		local Grip = Instance.new("ImageButton")
+		Grip.Name = Compkiller:_RandomString()
+		Grip.Parent = MainFrame
+		Grip.AnchorPoint = Vector2.new(1, 1)
+		Grip.BackgroundTransparency = 0.3
+		Grip.BackgroundColor3 = Compkiller.Colors.BlockBackground
+		Grip.BorderSizePixel = 0
+		Grip.Position = UDim2.new(1, -6, 1, -6)
+		Grip.Size = UDim2.new(0, 16, 0, 16)
+		Grip.ZIndex = 60
+		Grip.AutoButtonColor = true
+		Grip.ImageTransparency = 1 -- we draw our own cross
+
+		table.insert(Compkiller.Elements.BlockBackground,{ Element = Grip, Property = "BackgroundColor3" })
+
+		local gStroke = Instance.new("UIStroke")
+		gStroke.Color = Compkiller.Colors.HighStrokeColor
+		gStroke.Transparency = 0.25
+		gStroke.Parent = Grip
+		table.insert(Compkiller.Elements.HighStrokeColor,{ Element = gStroke, Property = "Color" })
+
+		local gCorner = Instance.new("UICorner")
+		gCorner.CornerRadius = UDim.new(0, 4)
+		gCorner.Parent = Grip
+
+		-- Decorative cross arrows
+		local a = Instance.new("Frame"); a.Parent=Grip; a.BackgroundColor3 = Compkiller.Colors.SwitchColor; a.Size=UDim2.new(0,10,0,2); a.Position=UDim2.new(0.5,-5,0.5,-1); a.BackgroundTransparency=0.2; a.BorderSizePixel=0; a.ZIndex=61
+		local b = Instance.new("Frame"); b.Parent=Grip; b.BackgroundColor3 = Compkiller.Colors.SwitchColor; b.Size=UDim2.new(0,2,0,10); b.Position=UDim2.new(0.5,-1,0.5,-5); b.BackgroundTransparency=0.2; b.BorderSizePixel=0; b.ZIndex=61
+		table.insert(Compkiller.Elements.SwitchColor,{ Element = a, Property = "BackgroundColor3" })
+		table.insert(Compkiller.Elements.SwitchColor,{ Element = b, Property = "BackgroundColor3" })
+
+		-- Resize logic
+		local dragging = false
+		local startPos, startSize
+		local minW, minH = 600, 380
+		local maxW, maxH = 1200, 800
+
+		Grip.MouseButton1Down:Connect(function(x,y)
+			dragging = true
+			startPos = Vector2.new(x,y)
+			startSize = Vector2.new(MainFrame.AbsoluteSize.X, MainFrame.AbsoluteSize.Y)
+		end)
+
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = false
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if not dragging then return end
+			if input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
+			local delta = input.Position - startPos
+			local w = math.clamp(startSize.X + delta.X, minW, maxW)
+			local h = math.clamp(startSize.Y + delta.Y, minH, maxH)
+			local newSize = UDim2.fromOffset(w,h)
+			Config.Scale = newSize
+			MainFrame.Size = newSize
+		end)
+	end
+
 	TabFrame.Active = true
 	TabFrame.Name = Compkiller:_RandomString()
 	TabFrame.Parent = MainFrame
@@ -5740,133 +5882,6 @@ function Compkiller.new(Config : Window)
 	TabMainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	TabMainFrame.Size = UDim2.new(1, 0, 1, 0)
 	TabMainFrame.ZIndex = 5
-
-	-- Top search bar (in the main content area)
-	local SearchBar = Instance.new("Frame")
-	local SearchCorner = Instance.new("UICorner")
-	local SearchStroke = Instance.new("UIStroke")
-	local SearchIcon = Instance.new("ImageLabel")
-	local SearchInput = Instance.new("TextBox")
-
-	SearchBar.Name = Compkiller:_RandomString()
-	SearchBar.Parent = MainFrame
-	SearchBar.BackgroundColor3 = Compkiller.Colors.BlockBackground
-	SearchBar.BackgroundTransparency = 0
-	SearchBar.BorderSizePixel = 0
-	-- place to the right of the sidebar with some margins
-	SearchBar.Position = UDim2.new(0, 120, 0, 12)
-	SearchBar.Size = UDim2.new(1, -160, 0, 28)
-	SearchBar.ZIndex = 7
-
-	SearchCorner.CornerRadius = UDim.new(0, 6)
-	SearchCorner.Parent = SearchBar
-
-	SearchStroke.Thickness = 1
-	SearchStroke.Color = Compkiller.Colors.HighStrokeColor
-	SearchStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	SearchStroke.Parent = SearchBar
-
-	SearchIcon.Parent = SearchBar
-	SearchIcon.BackgroundTransparency = 1
-	SearchIcon.Image = Compkiller:GetIcon("search") or "rbxassetid://10734966624"
-	SearchIcon.ImageTransparency = 0
-	SearchIcon.Size = UDim2.new(0, 18, 0, 18)
-	SearchIcon.Position = UDim2.new(0, 8, 0.5, -9)
-	SearchIcon.ZIndex = 8
-
-	SearchInput.Parent = SearchBar
-	SearchInput.BackgroundTransparency = 1
-	SearchInput.ClearTextOnFocus = false
-	SearchInput.PlaceholderText = "Search"
-	SearchInput.Font = Enum.Font.Gotham
-	SearchInput.TextSize = 14
-	SearchInput.TextXAlignment = Enum.TextXAlignment.Left
-	SearchInput.Text = ""
-	SearchInput.TextColor3 = Compkiller.Colors.SwitchColor
-	SearchInput.PlaceholderColor3 = Color3.fromRGB(170,170,175)
-	SearchInput.Position = UDim2.new(0, 34, 0, 0)
-	SearchInput.Size = UDim2.new(1, -42, 1, 0)
-	SearchInput.ZIndex = 8
-
-	-- Optional: hook search to filter visible blocks by text (soft stub)
-	local function normalize(s)
-		return string.lower(tostring(s or ""))
-	end
-
-	local function applySearch(term)
-		term = normalize(term)
-		-- Soft filtering: dim non-matching blocks in current tab content
-		local container = TabMainFrame
-		for _, child in ipairs(container:GetDescendants()) do
-			if child:IsA("TextLabel") then
-				local txt = normalize(child.Text)
-				local match = (term == "") or string.find(txt, term, 1, true) ~= nil
-				local lbl = child
-				lbl.TextTransparency = match and 0 or 0.6
-			end
-		end
-	end
-
-	SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
-		applySearch(SearchInput.Text)
-	end)
-
-	-- Resize grip (bottom-right) for manual window resizing
-	local ResizeGrip = Instance.new("ImageButton")
-	local ResizeStroke = Instance.new("UIStroke")
-	ResizeGrip.Name = Compkiller:_RandomString()
-	ResizeGrip.Parent = MainFrame
-	ResizeGrip.BackgroundColor3 = Compkiller.Colors.BlockBackground
-	ResizeGrip.BackgroundTransparency = 0.1
-	ResizeGrip.AutoButtonColor = true
-	ResizeGrip.Size = UDim2.new(0, 18, 0, 18)
-	ResizeGrip.Position = UDim2.new(1, -24, 1, -24)
-	ResizeGrip.AnchorPoint = Vector2.new(0,0)
-	ResizeGrip.ZIndex = 10
-	ResizeGrip.Image = Compkiller:GetIcon("move") or "rbxassetid://10734958326" -- 4-arrows if available
-	ResizeGrip.ImageTransparency = 0.2
-
-	ResizeStroke.Parent = ResizeGrip
-	ResizeStroke.Color = Compkiller.Colors.HighStrokeColor
-	ResizeStroke.Thickness = 1
-	ResizeStroke.Transparency = 0.2
-
-	local resizing = false
-	local startPos, startSize
-	local minSize = Vector2.new(680, 430)
-	local maxSize = Vector2.new(1400, 900)
-
-	local function clampSize(v)
-		return Vector2.new(
-			math.clamp(v.X, minSize.X, maxSize.X),
-			math.clamp(v.Y, minSize.Y, maxSize.Y)
-		)
-	end
-
-	ResizeGrip.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = true
-			startPos = UserInputService:GetMouseLocation()
-			startSize = Vector2.new(MainFrame.AbsoluteSize.X, MainFrame.AbsoluteSize.Y)
-		end
-	end)
-
-	ResizeGrip.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = false
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if not resizing then return end
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			local cur = UserInputService:GetMouseLocation()
-			local delta = cur - startPos
-			local target = clampSize(startSize + Vector2.new(delta.X, delta.Y))
-			MainFrame.Size = UDim2.fromOffset(target.X, target.Y)
-			Config.Scale = MainFrame.Size -- persist for open/close animations
-		end
-	end)
 
 	if Compkiller:_IsMobile() then
 		Compkiller:_AddDragBlacklist(TabButtons);
