@@ -5404,7 +5404,8 @@ function Compkiller.new(Config : Window)
 		local SearchBox = Instance.new("TextBox")
 		local SB_Corner = Instance.new("UICorner")
 		local SB_Stroke = Instance.new("UIStroke")
-		local Icon = Instance.new("TextLabel")
+		local Icon = Instance.new("ImageLabel")
+		local Divider = Instance.new("Frame")
 
 		SearchBox.Parent = SearchContainer
 		SearchBox.BackgroundColor3 = Compkiller.Colors.BlockBackground
@@ -5418,7 +5419,7 @@ function Compkiller.new(Config : Window)
 		SearchBox.Text = ""
 		SearchBox.TextColor3 = Compkiller.Colors.SwitchColor
 		SearchBox.TextSize = 14
-		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+		SearchBox.TextXAlignment = Enum.TextXAlignment.Center
 		SearchBox.ClearTextOnFocus = false
 		SearchBox.CursorPosition = -1
 		SearchBox.TextTruncate = Enum.TextTruncate.AtEnd
@@ -5435,24 +5436,33 @@ function Compkiller.new(Config : Window)
 		table.insert(Compkiller.Elements.SwitchColor,{ Element = SearchBox, Property = "TextColor3" })
 		table.insert(Compkiller.Elements.HighStrokeColor,{ Element = SB_Stroke, Property = "Color" })
 
-		-- Left magnifier icon (using text glyph to avoid asset dependency)
+		-- Left magnifier icon (image)
 		Icon.Parent = SearchBox
 		Icon.BackgroundTransparency = 1
-		Icon.Size = UDim2.new(0, 20, 1, 0)
-		Icon.Position = UDim2.new(0, 8, 0, 0)
+		Icon.Size = UDim2.new(0, 18, 0, 18)
+		Icon.Position = UDim2.new(0, 8, 0.5, -9)
 		Icon.ZIndex = 52
-		Icon.Font = Enum.Font.Gotham
-		Icon.Text = "🔍"
-		Icon.TextSize = 14
-		Icon.TextColor3 = Compkiller.Colors.SwitchColor
+		Icon.Image = Compkiller.Assets and Compkiller.Assets["lucide-search"] or "rbxassetid://10734943674"
+		Icon.ImageColor3 = Compkiller.Colors.SwitchColor
 
-		table.insert(Compkiller.Elements.SwitchColor,{ Element = Icon, Property = "TextColor3" })
+		table.insert(Compkiller.Elements.SwitchColor,{ Element = Icon, Property = "ImageColor3" })
 
 		-- Padding for text so it doesn't overlap icon
 		local UIPadding = Instance.new("UIPadding")
 		UIPadding.Parent = SearchBox
 		UIPadding.PaddingLeft = UDim.new(0, 30)
 		UIPadding.PaddingRight = UDim.new(0, 6)
+
+		-- Bottom divider to match skeuomorphic look
+		Divider.Parent = SearchBox
+		Divider.AnchorPoint = Vector2.new(0.5,1)
+		Divider.BackgroundColor3 = Compkiller.Colors.LineColor
+		Divider.BackgroundTransparency = 0.5
+		Divider.BorderSizePixel = 0
+		Divider.Position = UDim2.new(0.5,0,1,0)
+		Divider.Size = UDim2.new(1,-6,0,1)
+		Divider.ZIndex = 51
+		table.insert(Compkiller.Elements.LineColor,{ Element = Divider, Property = "BackgroundColor3" })
 
 		-- Fire search change
 		local function fireChange()
