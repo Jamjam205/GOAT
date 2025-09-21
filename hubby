@@ -5396,7 +5396,7 @@ function Compkiller.new(Config : Window)
 		SearchContainer.Name = Compkiller:_RandomString()
 		SearchContainer.Parent = MainFrame
 		SearchContainer.BackgroundTransparency = 1
-		SearchContainer.ZIndex = 50
+		SearchContainer.ZIndex = 100
 		-- Centered at top
 		SearchContainer.AnchorPoint = Vector2.new(0.5, 0)
 		SearchContainer.Position = UDim2.new(0.5, 0, 0, 8)
@@ -5405,15 +5405,35 @@ function Compkiller.new(Config : Window)
 		local SearchBox = Instance.new("TextBox")
 		local SB_Corner = Instance.new("UICorner")
 		local SB_Stroke = Instance.new("UIStroke")
+		local IconWrap = Instance.new("Frame")
 		local Icon = Instance.new("ImageLabel")
 		local Divider = Instance.new("Frame")
+
+		-- Icon capsule on the left
+		IconWrap.Parent = SearchContainer
+		IconWrap.BackgroundColor3 = Compkiller.Colors.BlockBackground
+		IconWrap.BackgroundTransparency = 0.05
+		IconWrap.BorderSizePixel = 0
+		IconWrap.Position = UDim2.new(0, 0, 0, 0)
+		IconWrap.Size = UDim2.new(0, 56, 1, 0)
+		IconWrap.ZIndex = 101
+		local IWCorner = Instance.new("UICorner")
+		IWCorner.CornerRadius = UDim.new(0, 6)
+		IWCorner.Parent = IconWrap
+		local IWStroke = Instance.new("UIStroke")
+		IWStroke.Color = Compkiller.Colors.HighStrokeColor
+		IWStroke.Transparency = 0.25
+		IWStroke.Parent = IconWrap
+		table.insert(Compkiller.Elements.BlockBackground,{ Element = IconWrap, Property = "BackgroundColor3" })
+		table.insert(Compkiller.Elements.HighStrokeColor,{ Element = IWStroke, Property = "Color" })
 
 		SearchBox.Parent = SearchContainer
 		SearchBox.BackgroundColor3 = Compkiller.Colors.BlockBackground
 		SearchBox.BackgroundTransparency = 0.05
 		SearchBox.BorderSizePixel = 0
-		SearchBox.Size = UDim2.new(1, 0, 1, 0)
-		SearchBox.ZIndex = 51
+		SearchBox.Position = UDim2.new(0, 60, 0, 0)
+		SearchBox.Size = UDim2.new(1, -60, 1, 0)
+		SearchBox.ZIndex = 101
 		SearchBox.Font = Enum.Font.Gotham
 		SearchBox.PlaceholderText = "Search"
 		SearchBox.PlaceholderColor3 = Color3.fromRGB(170, 170, 175)
@@ -5437,12 +5457,12 @@ function Compkiller.new(Config : Window)
 		table.insert(Compkiller.Elements.SwitchColor,{ Element = SearchBox, Property = "TextColor3" })
 		table.insert(Compkiller.Elements.HighStrokeColor,{ Element = SB_Stroke, Property = "Color" })
 
-		-- Left magnifier icon (image)
-		Icon.Parent = SearchBox
+		-- Left magnifier icon (image) inside its capsule
+		Icon.Parent = IconWrap
 		Icon.BackgroundTransparency = 1
 		Icon.Size = UDim2.new(0, 18, 0, 18)
-		Icon.Position = UDim2.new(0, 10, 0.5, -9)
-		Icon.ZIndex = 52
+		Icon.Position = UDim2.new(0.5, -9, 0.5, -9)
+		Icon.ZIndex = 102
 		Icon.Image = Compkiller.Assets and Compkiller.Assets["lucide-search"] or "rbxassetid://10734943674"
 		Icon.ImageColor3 = Compkiller.Colors.SwitchColor
 
@@ -5451,7 +5471,7 @@ function Compkiller.new(Config : Window)
 		-- Padding for text so it doesn't overlap icon
 		local UIPadding = Instance.new("UIPadding")
 		UIPadding.Parent = SearchBox
-		UIPadding.PaddingLeft = UDim.new(0, 36)
+		UIPadding.PaddingLeft = UDim.new(0, 20)
 		UIPadding.PaddingRight = UDim.new(0, 6)
 
 		-- Bottom divider to match skeuomorphic look
@@ -5462,7 +5482,7 @@ function Compkiller.new(Config : Window)
 		Divider.BorderSizePixel = 0
 		Divider.Position = UDim2.new(0.5,0,1,0)
 		Divider.Size = UDim2.new(1,-6,0,1)
-		Divider.ZIndex = 51
+		Divider.ZIndex = 101
 		table.insert(Compkiller.Elements.LineColor,{ Element = Divider, Property = "BackgroundColor3" })
 
 		-- Fire search change
