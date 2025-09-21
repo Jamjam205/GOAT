@@ -3021,6 +3021,8 @@ function Compkiller:_LoadOption(Value , TabSignal)
 		end);
 
 		local Args = {};
+		-- Child visibility signal tied to this toggle's state
+		local ChildSignal = Compkiller.__SIGNAL(Config.Default);
 
 		Args.Flag = Config.Flag;
 
@@ -3040,6 +3042,8 @@ function Compkiller:_LoadOption(Value , TabSignal)
 			Compkiller.Flags[Config.Flag] = Args;
 		end;
 
+		-- Fire initial state to ensure children sync if any were created before toggling
+		ChildSignal:Fire(Config.Default);
 		return Args;
 	end;
 
@@ -3739,6 +3743,8 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 
 			Block:SetTransparency((Config.Default and 0.1) or 0.3);
 
+			-- Propagate to children and user callback
+			ChildSignal:Fire(Config.Default);
 			Config.Callback(Config.Default);
 		end;
 
@@ -3748,6 +3754,11 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 		end);
 
 		Args.Link = Compkiller:_LoadOption(Block);
+
+		-- Provide a builder for child elements that are controlled by the toggle
+		function Args:Children()
+			return Compkiller:_LoadElement(Parent, EnabledLine, ChildSignal)
+		end
 
 		function Args:GetValue()
 			return Config.Default;
@@ -4021,6 +4032,18 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 				})
 			end;
 		end);
+
+		-- Apply initial state so brand-new sliders don't flash when parent toggle is OFF
+		if not Signal:GetValue() then
+			SliderInput.Size = UDim2.new(0, 0, 1, 0)
+			ValueText.TextTransparency = 1
+			Frame.BackgroundTransparency = 1
+			SliderInput.BackgroundTransparency = 1
+			UIStroke.Transparency = 1
+			SliderBar.BackgroundTransparency = 1
+			BlockLine.BackgroundTransparency = 1
+			BlockText.TextTransparency = 1
+		end
 
 		Compkiller:_Input(Frame,function()
 			Config.Callback();
@@ -5541,7 +5564,7 @@ function Compkiller.new(Config : Window)
 	PingLabel.Font = Enum.Font.GothamMedium
 	PingLabel.TextSize = 12
 	PingLabel.TextXAlignment = Enum.TextXAlignment.Left
-	PingLabel.TextColor3 = Color3.fromRGB(230, 230, 235)
+	PingLabel.TextColor3 = Color3.fromRGB(254, 254, 255)
 	PingLabel.Text = "Ping: 0 ms"
 
 	-- Click handler: show ping bubble briefly
@@ -5717,6 +5740,133 @@ function Compkiller.new(Config : Window)
 	TabMainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	TabMainFrame.Size = UDim2.new(1, 0, 1, 0)
 	TabMainFrame.ZIndex = 5
+
+	-- Top search bar (in the main content area)
+	local SearchBar = Instance.new("Frame")
+	local SearchCorner = Instance.new("UICorner")
+	local SearchStroke = Instance.new("UIStroke")
+	local SearchIcon = Instance.new("ImageLabel")
+	local SearchInput = Instance.new("TextBox")
+
+	SearchBar.Name = Compkiller:_RandomString()
+	SearchBar.Parent = MainFrame
+	SearchBar.BackgroundColor3 = Compkiller.Colors.BlockBackground
+	SearchBar.BackgroundTransparency = 0
+	SearchBar.BorderSizePixel = 0
+	-- place to the right of the sidebar with some margins
+	SearchBar.Position = UDim2.new(0, 120, 0, 12)
+	SearchBar.Size = UDim2.new(1, -160, 0, 28)
+	SearchBar.ZIndex = 7
+
+	SearchCorner.CornerRadius = UDim.new(0, 6)
+	SearchCorner.Parent = SearchBar
+
+	SearchStroke.Thickness = 1
+	SearchStroke.Color = Compkiller.Colors.HighStrokeColor
+	SearchStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	SearchStroke.Parent = SearchBar
+
+	SearchIcon.Parent = SearchBar
+	SearchIcon.BackgroundTransparency = 1
+	SearchIcon.Image = Compkiller:GetIcon("search") or "rbxassetid://10734966624"
+	SearchIcon.ImageTransparency = 0
+	SearchIcon.Size = UDim2.new(0, 18, 0, 18)
+	SearchIcon.Position = UDim2.new(0, 8, 0.5, -9)
+	SearchIcon.ZIndex = 8
+
+	SearchInput.Parent = SearchBar
+	SearchInput.BackgroundTransparency = 1
+	SearchInput.ClearTextOnFocus = false
+	SearchInput.PlaceholderText = "Search"
+	SearchInput.Font = Enum.Font.Gotham
+	SearchInput.TextSize = 14
+	SearchInput.TextXAlignment = Enum.TextXAlignment.Left
+	SearchInput.Text = ""
+	SearchInput.TextColor3 = Compkiller.Colors.SwitchColor
+	SearchInput.PlaceholderColor3 = Color3.fromRGB(170,170,175)
+	SearchInput.Position = UDim2.new(0, 34, 0, 0)
+	SearchInput.Size = UDim2.new(1, -42, 1, 0)
+	SearchInput.ZIndex = 8
+
+	-- Optional: hook search to filter visible blocks by text (soft stub)
+	local function normalize(s)
+		return string.lower(tostring(s or ""))
+	end
+
+	local function applySearch(term)
+		term = normalize(term)
+		-- Soft filtering: dim non-matching blocks in current tab content
+		local container = TabMainFrame
+		for _, child in ipairs(container:GetDescendants()) do
+			if child:IsA("TextLabel") then
+				local txt = normalize(child.Text)
+				local match = (term == "") or string.find(txt, term, 1, true) ~= nil
+				local lbl = child
+				lbl.TextTransparency = match and 0 or 0.6
+			end
+		end
+	end
+
+	SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
+		applySearch(SearchInput.Text)
+	end)
+
+	-- Resize grip (bottom-right) for manual window resizing
+	local ResizeGrip = Instance.new("ImageButton")
+	local ResizeStroke = Instance.new("UIStroke")
+	ResizeGrip.Name = Compkiller:_RandomString()
+	ResizeGrip.Parent = MainFrame
+	ResizeGrip.BackgroundColor3 = Compkiller.Colors.BlockBackground
+	ResizeGrip.BackgroundTransparency = 0.1
+	ResizeGrip.AutoButtonColor = true
+	ResizeGrip.Size = UDim2.new(0, 18, 0, 18)
+	ResizeGrip.Position = UDim2.new(1, -24, 1, -24)
+	ResizeGrip.AnchorPoint = Vector2.new(0,0)
+	ResizeGrip.ZIndex = 10
+	ResizeGrip.Image = Compkiller:GetIcon("move") or "rbxassetid://10734958326" -- 4-arrows if available
+	ResizeGrip.ImageTransparency = 0.2
+
+	ResizeStroke.Parent = ResizeGrip
+	ResizeStroke.Color = Compkiller.Colors.HighStrokeColor
+	ResizeStroke.Thickness = 1
+	ResizeStroke.Transparency = 0.2
+
+	local resizing = false
+	local startPos, startSize
+	local minSize = Vector2.new(680, 430)
+	local maxSize = Vector2.new(1400, 900)
+
+	local function clampSize(v)
+		return Vector2.new(
+			math.clamp(v.X, minSize.X, maxSize.X),
+			math.clamp(v.Y, minSize.Y, maxSize.Y)
+		)
+	end
+
+	ResizeGrip.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = true
+			startPos = UserInputService:GetMouseLocation()
+			startSize = Vector2.new(MainFrame.AbsoluteSize.X, MainFrame.AbsoluteSize.Y)
+		end
+	end)
+
+	ResizeGrip.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if not resizing then return end
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			local cur = UserInputService:GetMouseLocation()
+			local delta = cur - startPos
+			local target = clampSize(startSize + Vector2.new(delta.X, delta.Y))
+			MainFrame.Size = UDim2.fromOffset(target.X, target.Y)
+			Config.Scale = MainFrame.Size -- persist for open/close animations
+		end
+	end)
 
 	if Compkiller:_IsMobile() then
 		Compkiller:_AddDragBlacklist(TabButtons);
