@@ -1,3 +1,12 @@
+--[[
+    		Compkiller Interface
+
+    Author: 4lpaca
+    License: MIT
+    Github: https://github.com/4lpaca-pin/CompKiller
+--]]
+
+--- Export Types ---
 
 export type cloneref = (target: Instance) -> Instance;
 
@@ -322,7 +331,7 @@ local CurrentCamera: Camera? = workspace.CurrentCamera;
 
 local Compkiller = {
 	Version = '1.9',
-	Logo = "rbxassetid://120245531583106",
+	Logo = "rbxassetid://108433148946093",
 	Windows = {},
 	Scale = {
 		Window = UDim2.new(0, 456,0, 499),
