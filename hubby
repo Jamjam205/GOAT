@@ -4082,7 +4082,7 @@ function Compkiller:_LoadElement(Parent: Frame , EnabledLine: boolean , Signal)
 			Min = 0,
 			Max = 100,
 			Type = "",
-			Round = 0,
+			Round = 1,
 			Callback = function() end
 		});
 
